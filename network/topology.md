@@ -39,4 +39,8 @@ flowchart TD
     CLIENT -- "✅ HTTPS (TCP/443)" --> APP_SRV
     CLIENT -. "❌ SSH (TCP/22) BLOKADA" .-> APP_SRV
     APP_SRV -- "✅ DB (TCP/5432)" --> DB_SRV
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> e51f1318919a99e256bd4feda62599bbc340876b
