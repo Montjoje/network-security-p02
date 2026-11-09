@@ -1,72 +1,41 @@
-\# Diagram Architektury Sieci
-
-
+# Diagram Architektury Sieci
 
 ```mermaid
-
 flowchart TD
+    %% Definicja Routera
+    ROUTER(("🌐 Router<br>(3 interfejsy)"))
 
-&#x20;   %% Definicje węzłów i sieci
+    %% Sieć Klienta
+    subgraph CLIENT_NET ["CLIENT-NET (192.168.10.0/24)"]
+        CLIENT["💻 Klient testowy<br>192.168.10.10"]
+    end
 
-&#x20;   CLIENT\["💻 Klient testowy<br>192.168.10.10"]
+    %% Strefa DMZ
+    subgraph DMZ ["DMZ (192.168.20.0/24)"]
+        subgraph APP_SRV ["APP-SRV (192.168.20.10)"]
+            WAF["🛡️ Nginx + WAF"]
+            FLASK["⚙️ Aplikacja Flask"]
+            APP_LOGS[/"🗄️ Logi WAF/Audit"/]
+            WAF --> FLASK
+            WAF -.-> APP_LOGS
+        end
+    end
 
-&#x20;   ROUTER(("🌐 Router<br>(3 interfejsy)"))
+    %% Sieć Bazy Danych
+    subgraph DB_NET ["DB-NET (192.168.30.0/24)"]
+        subgraph DB_SRV ["DB-SRV (192.168.30.10)"]
+            DB["🐘 PostgreSQL"]
+            DB_LOGS[/"🗄️ Logi PostgreSQL/Audit"/]
+            DB -.-> DB_LOGS
+        end
+    end
 
+    %% Połączenia sieciowe z węzłów wewnętrznych do Routera
+    CLIENT <-->|"CLIENT-NET"| ROUTER
+    APP_SRV <-->|"DMZ"| ROUTER
+    DB_SRV <-->|"DB-NET"| ROUTER
 
-
-&#x20;   subgraph CLIENT\_NET \["CLIENT-NET (192.168.10.0/24)"]
-
-&#x20;       CLIENT
-
-&#x20;   end
-
-
-
-&#x20;   subgraph DMZ \["DMZ (192.168.20.0/24)"]
-
-&#x20;       subgraph APP\_SRV \["APP-SRV (192.168.20.10)"]
-
-&#x20;           WAF\["🛡️ Nginx + ModSecurity WAF"]
-
-&#x20;           FLASK\["⚙️ Aplikacja Flask"]
-
-&#x20;           APP\_LOGS\[/"🗄️ Logi (WAF, Nginx, Audit)"/]
-
-&#x20;           WAF --> FLASK
-
-&#x20;           WAF -.-> APP\_LOGS
-
-&#x20;       end
-
-&#x20;   end
-
-
-
-&#x20;   subgraph DB\_NET \["DB-NET (192.168.30.0/24)"]
-
-&#x20;       subgraph DB\_SRV \["DB-SRV (192.168.30.10)"]
-
-&#x20;           DB\["🐘 PostgreSQL"]
-
-&#x20;           DB\_LOGS\[/"🗄️ Logi (PostgreSQL, Audit)"/]
-
-&#x20;           DB -.-> DB\_LOGS
-
-&#x20;       end
-
-&#x20;   end
-
-
-
-&#x20;   %% Relacje, ruch i blokady
-
-&#x20;   CLIENT\_NET -- "✅ HTTPS (TCP/443)" --> ROUTER
-
-&#x20;   CLIENT\_NET -- "❌ BLOKADA SSH (TCP/22)" -.-x ROUTER
-
-&#x20;   ROUTER --> APP\_SRV
-
-&#x20;   APP\_SRV -- "✅ PostgreSQL (TCP/5432)" --> DB\_SRV
-
-```
-
+    %% Ruch dozwolony i blokowany (logiczny)
+    CLIENT -- "✅ HTTPS (TCP/443)" --> APP_SRV
+    CLIENT -. "❌ SSH (TCP/22) BLOKADA" .-> APP_SRV
+    APP_SRV -- "✅ DB (TCP/5432)" --> DB_SRV
