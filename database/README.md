@@ -2,4 +2,4 @@ Baza danych
 Konfiguracja PostgreSQL, inicjalizacja bazy oraz hardening serwera DB-SRV.
 
 Odpowiedzialność
-Osoba B
+Osoba 4 (DB i hardening)
