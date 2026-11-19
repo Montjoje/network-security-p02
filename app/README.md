@@ -1,6 +1,6 @@
 # Aplikacja
 
-Aplikacja Flask (Osoba 1, APP i Docker) i konfiguracja Docker.
+Aplikacja Flask (Osoba 1, APP i Docker) wraz z konfiguracją Docker.
 
 ## Endpointy
 
@@ -11,42 +11,67 @@ Aplikacja Flask (Osoba 1, APP i Docker) i konfiguracja Docker.
 | GET | `/file?name=...` | Zwraca plik z katalogu `app/files/`; ścieżka spoza katalogu zwraca 404 |
 | GET | `/command?cmd=...` | Zwraca otrzymany tekst z `executed: false`; aplikacja nie wykonuje poleceń |
 
+Zapytania SQL są parametryzowane. Aplikacja nie wykonuje poleceń systemowych.
+
 ## Konfiguracja
 
-Zmienne środowiskowe (wzór w `.env.example`): `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, opcjonalnie `APP_HOST`, `APP_PORT`.
-Prawdziwe hasło nie może trafić do repozytorium.
+Zmienne środowiskowe (wzór w `.env.example`):
 
-## Lokalne uruchomienie (Windows PowerShell)
+| Zmienna | Znaczenie |
+|---|---|
+| `DB_HOST`, `DB_PORT` | adres i port PostgreSQL |
+| `DB_NAME`, `DB_USER` | nazwa bazy i użytkownik aplikacyjny |
+| `DB_PASSWORD` | hasło (tylko w lokalnym `.env`, nie w Git) |
+| `APP_HOST`, `APP_PORT` | adres i port nasłuchu (tylko przy uruchomieniu `python app/app.py`) |
 
-1. Lokalna baza testowa (tylko do rozwoju, nie jest to docelowy DB-SRV):
+Plik `.env` jest ignorowany przez Git. W repozytorium jest wyłącznie `.env.example` z wartością `CHANGE_ME`.
+
+## Uruchomienie lokalne (Docker Compose)
+
+Środowisko lokalne uruchamia aplikację (Gunicorn, użytkownik bez uprawnień root) i tymczasową bazę PostgreSQL wyłącznie do testów. Nie jest to docelowy DB-SRV. Aplikacja jest dostępna tylko pod `127.0.0.1:5000`.
+
+Windows PowerShell, z katalogu `app`:
 
 ```powershell
-docker run --name p02-dev-db -e POSTGRES_DB=webapp_db -e POSTGRES_USER=webapp_user -e POSTGRES_PASSWORD=HASLO_TESTOWE -p 127.0.0.1:5432:5432 -d postgres:17
-docker exec -i p02-dev-db psql -U webapp_user -d webapp_db -c "CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, content TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now());"
+Copy-Item .env.example .env
+notepad .env
+docker compose -f compose.local.yaml up -d --build
 ```
 
-2. Środowisko Pythona (z katalogu głównego repozytorium):
+W `.env` ustaw tylko `DB_PASSWORD` (np. na hasło testowe). Adres bazy w kontenerze jest nadpisany na `db` w `compose.local.yaml`.
+
+Sprawdzenie:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r app/requirements.txt
-```
-
-3. Uruchomienie aplikacji:
-
-```powershell
-$env:DB_HOST = "127.0.0.1"
-$env:DB_PASSWORD = "HASLO_TESTOWE"
-python app/app.py
-```
-
-4. Test (w drugim terminalu):
-
-```powershell
+docker compose -f compose.local.yaml ps
 curl.exe -i http://127.0.0.1:5000/
 curl.exe -i -X POST -d "content=Pierwsza wiadomosc" http://127.0.0.1:5000/message
-docker exec -i p02-dev-db psql -U webapp_user -d webapp_db -c "SELECT * FROM messages;"
+docker compose -f compose.local.yaml exec db psql -U webapp_user -d webapp_db -c "SELECT * FROM messages;"
 ```
 
-Przy integracji wystarczy ustawić `DB_HOST=192.168.30.10` i właściwe hasło.
+Logi i zatrzymanie:
+
+```powershell
+docker compose -f compose.local.yaml logs --tail=100
+docker compose -f compose.local.yaml down       # zachowuje dane bazy
+docker compose -f compose.local.yaml down -v    # usuwa też dane bazy
+```
+
+## Testy
+
+Z katalogu głównego repozytorium (na Windowsie w Git Bash, nie w WSL):
+
+```bash
+bash tests/app-tests.sh http://127.0.0.1:5000
+```
+
+Oczekiwany wynik: `PASS=35 FAIL=0 SKIP=0` i kod wyjścia 0. Testy bazy, kontenerów i restartu wymagają lokalnego Docker Compose, w przeciwnym razie dostają status SKIP.
+
+## Uwagi
+
+- Pliki konfiguracyjne (`Dockerfile`, `*.yaml`, `*.sql`, `*.sh`) zapisuj w UTF-8; skrypty `.sh` z końcami linii LF (wymusza to `.gitattributes`).
+- Docelowa baza PostgreSQL działa na DB-SRV (`192.168.30.10`), a nie w lokalnym kontenerze.
+
+## Odpowiedzialność
+
+Osoba 1 (APP i Docker)
