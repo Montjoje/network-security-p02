@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # =====================================================================
 # P02: Testy konfiguracyjne, bezpieczenstwa i uprawnien PostgreSQL
-# Odpowiedzialnosc: Osoba 4 (DB i hardening)
 # Plik: tests/database-tests.sh
 #
 # Uzycie:
