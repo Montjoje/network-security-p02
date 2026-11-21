@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS messages (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+GRANT USAGE ON SCHEMA public TO webapp_user;
+
+REVOKE ALL ON TABLE messages FROM PUBLIC;
+GRANT SELECT, INSERT ON TABLE messages TO webapp_user;
+
+GRANT USAGE, SELECT ON SEQUENCE messages_id_seq TO webapp_user;
