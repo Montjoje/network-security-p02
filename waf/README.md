@@ -20,3 +20,8 @@ Konfiguracja reverse proxy Nginx z wymuszonym wyłącznie TLS 1.3 oraz host-base
 
 ## Testy
 Automatyczna weryfikacja: `./tests/tls-waf-tests.sh 192.168.20.10` (szczegóły w `tests/expected-results.md`).
+
+## Blokada SSH i zarządzanie przez konsolę GNS3 (`APP-SEC`)
+- Usługa `ssh` (`ssh.service` / `ssh.socket`) na `APP-SRV` jest zatrzymana i wyłączona z autostartu (`systemctl disable --now ssh ssh.socket`).
+- Plik `waf/nftables.conf` (wdrażany w `/etc/nftables.conf`, usługa `nftables` włączona przez `systemctl enable --now nftables`) definiuje tabelę `inet app_sec`, która odrzuca (`drop`) i loguje (`NFT-SSH-BLOCK: `) próby połączenia na `TCP/22` bez naruszania reguł Dockera ani ruchu HTTPS (`TCP/443`).
+- Ze względu na brak zdalnego dostępu SSH, bieżąca administracja `APP-SRV` (podgląd logów `/var/log/modsec_audit.log`, `journalctl -k`, restart usług) odbywa się wyłącznie lokalnie przez konsolę maszyny wirtualnej w GNS3 / VirtualBox.
