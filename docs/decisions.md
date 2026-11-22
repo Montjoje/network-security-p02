@@ -80,6 +80,14 @@ Ten plik zawiera ustalenia, których nie należy zmieniać bez uzgodnienia z zes
 - port bazy: `5432`
 - hasło: tylko w niewersjonowanym pliku `.env`, w repozytorium wyłącznie `CHANGE_ME` w `.env.example`
 
+## Aplikacja (Osoba 1)
+
+- aplikacja Flask (gunicorn) nasłuchuje w kontenerze na `0.0.0.0:5000`, na hoście publikowana tylko jako `127.0.0.1:5000`; z zewnątrz dostępna wyłącznie przez Nginx (TLS 1.3, TCP/443)
+- `POST /message` przyjmuje pole `content` (formularz lub JSON), zapisuje je w tabeli `messages` zapytaniem parametryzowanym i zwraca `201` z `id`
+- `/command` nie wykonuje przekazanych poleceń (celowo podatny endpoint tylko do testów WAF)
+- na APP-SRV aplikacja działa z `app/compose.lab.yaml` bez lokalnej bazy; konfiguracja bazy ze zmiennych `DB_*` w pliku `.env` poza Git
+- `app/compose.local.yaml` służy wyłącznie do pracy lokalnej (z lokalnym PostgreSQL)
+
 ## Zasada zmian
 
 Każda zmiana adresacji, portów, nazw usług lub odpowiedzialności musi zostać zapisana w tym pliku.
@@ -87,3 +95,4 @@ Każda zmiana adresacji, portów, nazw usług lub odpowiedzialności musi zosta�
 ## Dziennik zmian
 
 - Zmiana podziału zespołu z 2 osób (A/B) na 4 osoby (Osoba 1–4); dodano macierz ruchu, granice odpowiedzialności oraz adresy klienta testowego i bram segmentów.
+- Dodano sekcję „Aplikacja (Osoba 1)”: port 127.0.0.1:5000 za Nginx, format `POST /message`, `compose.lab.yaml` bez lokalnej bazy na APP-SRV; integracja APP-SRV → DB-SRV sprawdzona w kopii labu (log: `docs/logs/app/integration-poc.log`).
