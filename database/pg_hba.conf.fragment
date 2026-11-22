@@ -1,0 +1,13 @@
+# P02: Fragment konfiguracji pg_hba.conf
+# Dopuszczenie polaczen lokalnych (socket)
+local   all             postgres                                peer
+local   all             all                                     peer
+
+# Dopuszczenie polaczen lokalnych loopback
+host    all             all             127.0.0.1/32            scram-sha-256
+host    all             all             ::1/128                 scram-sha-256
+
+# Dopuszczenie wylacznie serwera APP-SRV (192.168.20.10/32) do bazy webapp_db dla webapp_user
+host    webapp_db       webapp_user     192.168.20.10/32        scram-sha-256
+
+# Kazde inne zrodlo jest domyslnie odrzucane przez PostgreSQL (default deny)

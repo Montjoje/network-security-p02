@@ -1,0 +1,12 @@
+# P02: Fragment konfiguracji postgresql.conf
+# Nasluchiwanie wylacznie na dedykowanym adresie DB-NET oraz localhost (brak 0.0.0.0 / *)
+listen_addresses = '127.0.0.1, 192.168.30.10'
+port = 5432
+
+# Szyfrowanie hasel nowoczesnym algorytmem SCRAM-SHA-256
+password_encryption = scram-sha-256
+
+# Rejestracja zdarzen polaczen do celow audytowych
+log_connections = on
+log_disconnections = on
+log_line_prefix = '%m [%p] %q%u@%d '
