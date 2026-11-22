@@ -57,6 +57,22 @@ docker compose -f compose.local.yaml down       # zachowuje dane bazy
 docker compose -f compose.local.yaml down -v    # usuwa też dane bazy
 ```
 
+## Uruchomienie w laboratorium (APP-SRV, `compose.lab.yaml`)
+
+Wersja dla APP-SRV uruchamia tylko aplikację i łączy się z bazą na DB-SRV. Aplikacja jest dostępna wyłącznie pod `127.0.0.1:5000`, a ruch z klienta przyjmuje Nginx (TCP/443, TLS 1.3, WAF) skonfigurowany skryptem `waf/setup-app-srv.sh`.
+
+Na APP-SRV, z katalogu `app` (hasło wpisz interaktywnie, nie zapisuj go w historii poleceń):
+
+```bash
+umask 077
+read -rsp "DB_PASSWORD: " DB_PASSWORD; echo
+printf 'DB_HOST=192.168.30.10\nDB_PORT=5432\nDB_NAME=webapp_db\nDB_USER=webapp_user\nDB_PASSWORD=%s\n' "$DB_PASSWORD" > .env
+unset DB_PASSWORD
+sudo docker compose -f compose.lab.yaml up -d --build
+```
+
+Plik `.env` jest ignorowany przez Git. Przed zmianą środowiska zatrzymaj stary stos (`docker compose -f compose.local.yaml down -v`), żeby na APP-SRV nie działała lokalna baza.
+
 ## Testy
 
 Z katalogu głównego repozytorium (na Windowsie w Git Bash, nie w WSL):
