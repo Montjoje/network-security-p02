@@ -1,0 +1,19 @@
+name: p02-lab
+
+# Wersja laboratoryjna dla APP-SRV: tylko aplikacja, bez lokalnej bazy.
+# Baza PostgreSQL dziala na oddzielnym hoscie DB-SRV (adres w pliku .env).
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    # tylko lokalnie: ruch z zewnatrz przyjmuje Nginx (TCP/443) i przekazuje na 127.0.0.1:5000
+    ports:
+      - "127.0.0.1:5000:5000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
