@@ -1,0 +1,35 @@
+# Testy PoC, tryb app (APP-SRV 192.168.20.10, konsola VirtualBox; SSH jest zablokowany)
+# Przepisane ze zrzutow ekranu: docs/screenshots/poc/01-..., 02-..., 03-...
+# Komenda: sudo bash tests/poc-tests.sh app 192.168.20.10 192.168.30.10 <ZNACZNIK> 2>&1 | tee ~/poc-app.log
+
+## Przed restartem (2026-11-26 05:03:56, znacznik poc1795665661)
+[8] Command Injection w logu
+[PASS] Log /var/log/modsec_audit.log zawiera zadanie ze znacznikiem poc1795665661
+[PASS] Log zawiera wpis Command Injection (regula 100003)
+[PASS] Log zawiera tez wpisy SQL Injection i Path Traversal
+[10] APP-SRV laczy sie z DB
+[PASS] TCP APP-SRV -> 192.168.30.10:5432 dziala
+[PASS] Kontener aplikacji dziala: p02-lab-app-1 Up 4 minutes
+[PASS] Aplikacja zapisuje rekord w DB-SRV: {"id":6,"status":"saved"}
+[4] SSH zablokowane po stronie APP-SRV
+[PASS] Usluga SSH jest wylaczona
+[PASS] Regula nftables 'tcp dport 22 drop' jest aktywna
+[11] Uslugi (uzyj po restarcie)
+[PASS] Usluga docker aktywna
+[PASS] Usluga nginx aktywna
+[PASS] Usluga nftables aktywna
+[PASS] nginx -t poprawne
+Podsumowanie: PASS=12 FAIL=0
+
+## Po restarcie (2026-11-26 05:07:18, znacznik poc1795665956)
+(identyczny zestaw testow: PASS=12 FAIL=0; kontener "Up 2 minutes", zapis {"id":8,"status":"saved"})
+
+## Dodatkowo (zrzut 03)
+$ systemctl is-active ssh ssh.socket
+inactive
+inactive
+$ systemctl --failed
+0 loaded units listed.
+$ ip -4 -br a
+enp0s3 UP 10.0.2.15/24 (NAT, tylko kanal zarzadzania kopii labu)
+enp0s8 UP 192.168.20.10/24
