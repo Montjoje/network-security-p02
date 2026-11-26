@@ -96,3 +96,5 @@ Każda zmiana adresacji, portów, nazw usług lub odpowiedzialności musi zosta�
 
 - Zmiana podziału zespołu z 2 osób (A/B) na 4 osoby (Osoba 1–4); dodano macierz ruchu, granice odpowiedzialności oraz adresy klienta testowego i bram segmentów.
 - Dodano sekcję „Aplikacja (Osoba 1)”: port 127.0.0.1:5000 za Nginx, format `POST /message`, `compose.lab.yaml` bez lokalnej bazy na APP-SRV; integracja APP-SRV → DB-SRV sprawdzona w kopii labu (log: `docs/logs/app/integration-poc.log`).
+- 2026-11-26: dodano `network/gns3/` (stan GNS3 i konfiguracje interfejsów), `tests/network-tests.sh` i `HANDOVER.md`; scalono poprawkę `poc-tests.sh` z gałęzi `poc-retry`.
+- 2026-11-26: system na `APP-SRV` i `DB-SRV` to **Debian 13** (zgodnie z wymaganiami projektu i z dotychczasowym PoC). Obrazy GNS3 na Alpine 3.24 zostaną zastąpione obrazami Debiana 13. Router pozostaje na Alpine.
