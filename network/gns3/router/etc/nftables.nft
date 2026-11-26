@@ -1,0 +1,16 @@
+flush ruleset
+
+table inet filter {
+    chain forward {
+        type filter hook forward priority filter; policy drop;
+
+        ct state established,related counter accept
+        ip protocol icmp counter accept
+
+        ip saddr 192.168.10.0/24 ip daddr 192.168.20.10 tcp dport 443 counter accept
+        ip saddr 192.168.10.0/24 ip daddr 192.168.20.10 tcp dport { 80, 22 } counter log prefix "DROP client-APP " drop
+
+        ip saddr 192.168.20.10 ip daddr 192.168.30.10 tcp dport 5432 counter accept
+        ip saddr 192.168.10.0/24 ip daddr 192.168.30.10 tcp dport 5432 counter log prefix "DROP client-DB " drop
+    }
+}
