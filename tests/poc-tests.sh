@@ -46,7 +46,12 @@ client_tests() {
   local c out reach=0
 
   echo "[1] Normalne HTTPS"
-  c=$(code "${BASE_URL}/")
+  # pierwsze zadanie po starcie maszyn bywa wolne: do 3 prob
+  for attempt in 1 2 3; do
+    c=$(code "${BASE_URL}/")
+    [[ "$c" == "200" ]] && break
+    [[ "$attempt" -lt 3 ]] && { echo "     proba ${attempt}: HTTP ${c}, ponawiam..."; sleep 5; }
+  done
   [[ "$c" == "200" ]] && reach=1
   [[ "$c" == "200" ]] && grep -q '"status"' "$TMP" \
     && pass "GET / przez HTTPS -> HTTP 200" || fail "GET / -> HTTP ${c} (oczekiwano 200)"
