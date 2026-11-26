@@ -125,6 +125,15 @@ app_tests() {
   curl -sS --max-time "$MT" -X POST http://127.0.0.1:5000/message --data-urlencode "content=PoC zapis do DB-SRV $(date +%s)" -o "$TMP" -w "%{http_code}" 2>/dev/null | grep -q 201 \
     && pass "Aplikacja zapisuje rekord w DB-SRV: $(cat "$TMP")" || fail "Zapis z aplikacji do DB-SRV nie dziala"
 
+  echo "[4] SSH zablokowane po stronie APP-SRV"
+  if systemctl is-active --quiet ssh || systemctl is-active --quiet ssh.socket; then
+    fail "Usluga SSH jest aktywna (uruchom: sudo waf/setup-app-srv.sh --lock-ssh)"
+  else
+    pass "Usluga SSH jest wylaczona"
+  fi
+  nft list table inet app_sec 2>/dev/null | grep -q "dport 22.*drop" \
+    && pass "Regula nftables 'tcp dport 22 drop' jest aktywna" || fail "Brak aktywnej reguly nftables dla portu 22"
+
   echo "[11] Uslugi (uzyj po restarcie)"
   for s in docker nginx nftables; do
     systemctl is-active --quiet "$s" && pass "Usluga ${s} aktywna" || fail "Usluga ${s} nieaktywna"
