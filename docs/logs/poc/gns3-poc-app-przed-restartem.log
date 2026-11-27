@@ -1,0 +1,21 @@
+==========================================
+ P02 PoC: tryb=app APP=192.168.20.10 DB=192.168.30.10
+ 2026-11-27 02:14:41
+==========================================
+[8] Command Injection w logu
+[PASS] Log /var/log/modsec_audit.log zawiera zadanie ze znacznikiem poc1795745630
+[PASS] Log zawiera wpis Command Injection (regula 100003)
+[PASS] Log zawiera tez wpisy SQL Injection i Path Traversal
+[10] APP-SRV laczy sie z DB
+[PASS] TCP APP-SRV -> 192.168.30.10:5432 dziala
+[PASS] Proces aplikacji (gunicorn) dziala
+[PASS] Aplikacja zapisuje rekord w DB-SRV: {"id":2,"status":"saved"}
+[4] SSH zablokowane po stronie APP-SRV
+[PASS] Na APP-SRV nie nasluchuje zaden serwer SSH (port 22)
+[PASS] Regula nftables 'tcp dport 22 drop' jest aktywna
+[11] Uslugi (uzyj po restarcie)
+[PASS] Proces nginx aktywny
+[PASS] Proces aplikacji aktywny
+[PASS] nginx -t poprawne
+------------------------------------------
+Podsumowanie: PASS=11 FAIL=0

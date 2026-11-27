@@ -1,0 +1,11 @@
+root@Router:/# nft list ruleset | grep -E "drop|accept"
+                type filter hook input priority filter; policy accept;
+                type filter hook forward priority filter; policy drop;
+                ct state established,related accept
+                ct state invalid drop
+                ip saddr 192.168.10.10 ip daddr 192.168.30.10 counter packets 3 bytes 180 log prefix "FW-DROP-CLIENT-DB: " drop
+                ip saddr 192.168.10.10 ip daddr 192.168.20.10 tcp dport { 22, 80 } counter packets 3 bytes 180 log prefix "FW-DROP-CLIENT-APP: " drop
+                ip saddr 192.168.10.10 ip daddr 192.168.20.10 tcp dport 443 ct state new counter packets 7 bytes 420 accept
+                ip saddr 192.168.20.10 ip daddr 192.168.30.10 tcp dport 5432 ct state new counter packets 5 bytes 300 accept
+                ip protocol 1 counter packets 0 bytes 0 accept
+                counter packets 0 bytes 0 drop

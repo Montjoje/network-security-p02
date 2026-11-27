@@ -96,3 +96,4 @@ Każda zmiana adresacji, portów, nazw usług lub odpowiedzialności musi zosta�
 
 - Zmiana podziału zespołu z 2 osób (A/B) na 4 osoby (Osoba 1–4); dodano macierz ruchu, granice odpowiedzialności oraz adresy klienta testowego i bram segmentów.
 - Dodano sekcję „Aplikacja (Osoba 1)”: port 127.0.0.1:5000 za Nginx, format `POST /message`, `compose.lab.yaml` bez lokalnej bazy na APP-SRV; integracja APP-SRV → DB-SRV sprawdzona w kopii labu (log: `docs/logs/app/integration-poc.log`).
+- Lab w GNS3 zbudowany na węzłach Docker (katalog `lab/`, skrypt `lab/gns3/create-project.py`): bez KVM i bez maszyn VirtualBox, obrazy z tych samych plików `waf/`, `database/` i reguł z macierzy ruchu; testy PoC 1–11 przeszły przed i po restarcie (`docs/poc-results.md`). Do uzgodnienia z Osobą 3, czy ta wersja zastępuje topologię z węzłami Alpine/Qemu.
