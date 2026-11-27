@@ -31,7 +31,7 @@ bash lab/build.sh
 Na koncu pojawi sie lista czterech obrazow `p02/...`.
 
 ## Krok 2: utworz projekt GNS3
-W PowerShell na Windowsie (w katalogu repozytorium; port to port serwera z GNS3 -> Edit -> Preferences -> Server):
+W PowerShell na Windowsie (w katalogu repozytorium; wpisz port swojego serwera z GNS3 -> Edit -> Preferences -> Server, domyslnie 3080):
 ```powershell
 python lab\gns3\create-project.py --server http://127.0.0.1:3080 --start
 ```
@@ -57,5 +57,5 @@ i powtorz testy.
 
 ## Rozwiazywanie problemow
 - `docker` w GNS3 VM zwraca blad uprawnien: `build.sh` uzywa `sudo docker` automatycznie.
-- Wezel nie ma adresu IP: w konsoli `ip a`; logi startu: `cat /proc/1/fd/1` nie dziala - wpisz `ip a` i uruchom wezel ponownie.
+- Wezel nie ma adresu IP: wpisz w jego konsoli `ip a`; jesli brak adresu, zatrzymaj wezel i uruchom go ponownie.
 - Zmiana obrazu: po `git pull` i `bash lab/build.sh` zatrzymaj wezly, usun je (Delete) i utworz projekt od nowa skryptem.
