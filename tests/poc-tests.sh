@@ -108,6 +108,10 @@ client_tests() {
   fi
 }
 
+# kontener (lab Docker w GNS3) nie ma systemd - testy uslug sprawdzaja procesy
+IN_CONTAINER=0
+[[ -d /run/systemd/system ]] || IN_CONTAINER=1
+
 app_tests() {
   local out
   [[ "$(id -u)" -eq 0 ]] || { echo "Tryb app wymaga sudo"; exit 2; }
@@ -125,13 +129,23 @@ app_tests() {
 
   echo "[10] APP-SRV laczy sie z DB"
   tcp_open "$DB_IP" 5432 && pass "TCP APP-SRV -> ${DB_IP}:5432 dziala" || fail "APP-SRV nie laczy sie z ${DB_IP}:5432"
-  out=$(docker ps --filter name=p02-lab-app --format '{{.Names}} {{.Status}}' 2>/dev/null)
-  echo "$out" | grep -q "Up" && pass "Kontener aplikacji dziala: ${out}" || fail "Kontener aplikacji nie dziala"
+  if [[ "$IN_CONTAINER" -eq 1 ]]; then
+    pgrep -f "gunicorn.*app:app" >/dev/null && pass "Proces aplikacji (gunicorn) dziala" || fail "Proces aplikacji (gunicorn) nie dziala"
+  else
+    out=$(docker ps --filter name=p02-lab-app --format '{{.Names}} {{.Status}}' 2>/dev/null)
+    echo "$out" | grep -q "Up" && pass "Kontener aplikacji dziala: ${out}" || fail "Kontener aplikacji nie dziala"
+  fi
   curl -sS --max-time "$MT" -X POST http://127.0.0.1:5000/message --data-urlencode "content=PoC zapis do DB-SRV $(date +%s)" -o "$TMP" -w "%{http_code}" 2>/dev/null | grep -q 201 \
     && pass "Aplikacja zapisuje rekord w DB-SRV: $(cat "$TMP")" || fail "Zapis z aplikacji do DB-SRV nie dziala"
 
   echo "[4] SSH zablokowane po stronie APP-SRV"
-  if systemctl is-active --quiet ssh || systemctl is-active --quiet ssh.socket; then
+  if [[ "$IN_CONTAINER" -eq 1 ]]; then
+    if ss -lnt 2>/dev/null | grep -qE '[:.]22[[:space:]]'; then
+      fail "Na APP-SRV nasluchuje port 22"
+    else
+      pass "Na APP-SRV nie nasluchuje zaden serwer SSH (port 22)"
+    fi
+  elif systemctl is-active --quiet ssh || systemctl is-active --quiet ssh.socket; then
     fail "Usluga SSH jest aktywna (uruchom: sudo waf/setup-app-srv.sh --lock-ssh)"
   else
     pass "Usluga SSH jest wylaczona"
@@ -140,9 +154,14 @@ app_tests() {
     && pass "Regula nftables 'tcp dport 22 drop' jest aktywna" || fail "Brak aktywnej reguly nftables dla portu 22"
 
   echo "[11] Uslugi (uzyj po restarcie)"
-  for s in docker nginx nftables; do
-    systemctl is-active --quiet "$s" && pass "Usluga ${s} aktywna" || fail "Usluga ${s} nieaktywna"
-  done
+  if [[ "$IN_CONTAINER" -eq 1 ]]; then
+    pgrep -x nginx >/dev/null && pass "Proces nginx aktywny" || fail "Proces nginx nieaktywny"
+    pgrep -f "gunicorn.*app:app" >/dev/null && pass "Proces aplikacji aktywny" || fail "Proces aplikacji nieaktywny"
+  else
+    for s in docker nginx nftables; do
+      systemctl is-active --quiet "$s" && pass "Usluga ${s} aktywna" || fail "Usluga ${s} nieaktywna"
+    done
+  fi
   nginx -t >/dev/null 2>&1 && pass "nginx -t poprawne" || fail "nginx -t zwraca blad"
 }
 
