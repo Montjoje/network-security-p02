@@ -1,0 +1,31 @@
+root@DB-SRV:/# runuser -u postgres -- psql -d webapp_db -c "SELECT count(*) FROM messages;"
+ count
+-------
+     2
+(1 row)
+
+==========================================
+ P02 PoC: tryb=client APP=192.168.20.10 DB=192.168.30.10
+ 2026-11-27 02:19:05
+==========================================
+[1] Normalne HTTPS
+[PASS] GET / przez HTTPS -> HTTP 200
+[2] TLS 1.3
+[PASS] Polaczenie TLS 1.3 nawiazane (TLS_AES_256_GCM_SHA384)
+[3] TLS 1.2 odrzucany
+[PASS] TLS 1.2 odrzucony
+[4] SSH do APP-SRV zablokowane
+[PASS] Port 22 na APP-SRV niedostepny z klienta (timeout/odrzucenie)
+[5] Poprawny POST
+[PASS] POST /message -> HTTP 201: {"id":35,"status":"saved"}
+[6] SQL Injection
+[PASS] SQL Injection -> HTTP 403
+[7] Path Traversal
+[PASS] Path Traversal -> HTTP 403
+[8] Command Injection (wyslanie; wpis w logu sprawdza tryb app)
+[PASS] Command Injection obsluzone bez wykonania polecenia (HTTP 200)
+MARKER=poc1795745951
+[9] Klient nie laczy sie z DB
+[PASS] Klient nie polaczyl sie z 192.168.30.10:5432
+------------------------------------------
+Podsumowanie: PASS=9 FAIL=0

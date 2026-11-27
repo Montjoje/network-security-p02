@@ -1,0 +1,5 @@
+.git
+docs/screenshots
+docs/logs
+*.log
+*.gns3project
