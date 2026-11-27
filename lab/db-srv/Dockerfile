@@ -8,7 +8,7 @@ COPY database/postgresql.conf.fragment /tmp/p02-hardening.conf
 COPY database/pg_hba.conf.fragment /tmp/pg_hba.conf
 COPY database/nftables.conf /etc/nftables.conf
 COPY database/init.sql /opt/p02/init.sql
-COPY lab/lib/lib.sh /usr/local/lib/p02/lib.sh
+COPY lab/common/lib.sh /usr/local/lib/p02/lib.sh
 COPY lab/db-srv/entrypoint.sh /entrypoint.sh
 RUN PGV="$(ls /usr/lib/postgresql | sort -V | tail -1)" \
  && sed -i 's/\r$//' /tmp/p02-hardening.conf /tmp/pg_hba.conf /etc/nftables.conf /opt/p02/init.sql /usr/local/lib/p02/lib.sh /entrypoint.sh \

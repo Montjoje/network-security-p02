@@ -15,7 +15,7 @@ COPY waf/nginx/secure-app.conf /etc/nginx/sites-available/secure-app.conf
 COPY waf/modsecurity/main.conf /etc/modsecurity/main.conf
 COPY waf/modsecurity/custom-rules.conf /etc/modsecurity/custom-rules.conf
 COPY waf/nftables.conf /etc/nftables.conf
-COPY lab/lib/lib.sh /usr/local/lib/p02/lib.sh
+COPY lab/common/lib.sh /usr/local/lib/p02/lib.sh
 COPY lab/app-srv/entrypoint.sh /entrypoint.sh
 COPY tests/ /opt/p02/tests/
 RUN sed -i 's/\r$//' /etc/nginx/sites-available/secure-app.conf /etc/modsecurity/main.conf \
