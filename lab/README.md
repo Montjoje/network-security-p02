@@ -1,5 +1,7 @@
 # Lab P02 w GNS3 na wezlach Docker
 
+Pelny opis (jak dziala, co udowodnilismy, instrukcja odtworzenia, problemy): [`docs/lab-gns3-docker.md`](../docs/lab-gns3-docker.md).
+
 Wersja labu, ktora dziala **bez KVM i bez VirtualBox**: wszystkie 4 wezly (router, klient,
 APP-SRV, DB-SRV) to kontenery Docker uruchamiane przez GNS3 w maszynie GNS3 VM.
 Adresacja, reguly routera, konfiguracja WAF/TLS i utwardzanie DB-SRV sa te same
